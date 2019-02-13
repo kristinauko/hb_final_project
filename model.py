@@ -13,7 +13,7 @@ class Product(db.Model):
     amazon_id = db.Column(db.Integer, nullable=False,)
     name = db.Column(db.String(50), nullable=False,)
 
-#relationshis. joins yourself, if relationship not set. 
+    quotes = db.relationship('Quote', backref='human')
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -27,7 +27,7 @@ class Quote(db.Model):
     __tablename__ = "quotes"
 
     quote_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'),)
     date_time = db.Column(db.datetime,)
     price = db.Column(db.Float,)
 
