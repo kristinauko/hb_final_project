@@ -3,6 +3,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from jinja2 import StrictUndefined
 import keepaAPI
 import os
+from helper import get_product_id, get_product_data
 
 #os.system("source secrets.sh")
 
@@ -56,7 +57,7 @@ def get_product_data(product_id):
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
-    app.debug = True
+    app.debug = False
 
     # Use the DebugToolbar
     DebugToolbarExtension(app)
