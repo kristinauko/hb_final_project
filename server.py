@@ -21,48 +21,47 @@ def home_page():
         
     return render_template('homepage.html')
 
+
 @app.route("/get-prices")
 def get_prices():
     """Renders template for displaying prices"""
 
-    amazon_url = request.args.get("amazon-url")
-    amazon_id = get_amazon_id(amazon_url) 
-    product_payload = get_product_data(amazon_id) 
-    product = product_payload[0]
+    amazon_url = request.args.get("amazon-url") #get input which is Amazon url
+    amazon_id = get_amazon_id(amazon_url) #extract amazon item unique id from Amazon url
+    product_payload = get_product_data(amazon_id)  #query Keepa API
+    product = product_payload[0] #extracts product from product payload 
 
-    load_products(product)
-    load_quotes(product, amazon_id)
+    load_products(product) 
+    load_quotes(product, amazon_id)  
 
     return render_template("get-prices.html", product=product)
 
 
 def load_products(product):
-    """Load products from API request payload"""
+    """Load products to database from API request payload"""
 
     print("Product")
 
-    amazon_id = product['asin']
-    name = product['title']
+    amazon_id = product['asin'] #amazon id for product
+    name = product['title'] #name for the product
 
 
     product_entry = Product(amazon_id=amazon_id, 
                             name=name)
 
     db.session.add(product_entry)
-
     db.session.commit()
 
 
 def load_quotes(product, amazon_id):
-    """Load quotes from API request payload"""
+    """Load quotes to database from API request payload"""
 
     print("Quotes")
 
-    db_product = Product.query.filter(Product.amazon_id == amazon_id).first()
+    db_product = Product.query.filter(Product.amazon_id == amazon_id).first() #access product_id in products table
 
-    # Access new price history and associated time data
-    newprice = product['data']['NEW']
-    newpricetime = product['data']['NEW_time']
+    newprice = product['data']['NEW'] #acess new products' price history
+    newpricetime = product['data']['NEW_time'] #access new products' timestamps
     
     #loop over entries
     for i in range(len(newprice)):
@@ -75,8 +74,8 @@ def load_quotes(product, amazon_id):
                             price=current_price)
 
         db.session.add(quote_entry)
-
     db.session.commit()
+
 
 
 if __name__ == "__main__":
@@ -89,5 +88,3 @@ if __name__ == "__main__":
     DebugToolbarExtension(app)
 
     app.run(host="0.0.0.0")
-
-
