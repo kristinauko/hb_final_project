@@ -1,19 +1,19 @@
 from flask import Flask, redirect, request, render_template, session
 from flask_debugtoolbar import DebugToolbarExtension
+from flask_sqlalchemy import SQLAlchemy
 from jinja2 import StrictUndefined
-from helper import get_product_id, get_product_data
-# from seed import load
+from helper import get_amazon_id, get_product_data
+from model import Product, Quote, connect_to_db, db
+from datetime import datetime
+from sqlalchemy import func
 
-#os.system("source secrets.sh")
 
 app = Flask(__name__)
 app.jinja_env.undefined = StrictUndefined
 app.jinja_env.auto_reload = True
 
+
 app.secret_key = "ABC"
-
-
-
 
 @app.route("/")
 def home_page():
@@ -24,15 +24,63 @@ def home_page():
 @app.route("/get-prices")
 def get_prices():
     """Renders template for displaying prices"""
-    amazon_url = request.args.get("amazon-url")
-    product_id = get_product_id(amazon_url)
-    product = get_product_data(product_id)
 
+    amazon_url = request.args.get("amazon-url")
+    amazon_id = get_amazon_id(amazon_url) 
+    product_payload = get_product_data(amazon_id) 
+    product = product_payload[0]
+
+    load_products(product)
+    load_quotes(product, amazon_id)
 
     return render_template("get-prices.html", product=product)
 
 
+def load_products(product):
+    """Load products from API request payload"""
+
+    print("Product")
+
+    amazon_id = product['asin']
+    name = product['title']
+
+
+    product_entry = Product(amazon_id=amazon_id, 
+                            name=name)
+
+    db.session.add(product_entry)
+
+    db.session.commit()
+
+
+def load_quotes(product, amazon_id):
+    """Load quotes from API request payload"""
+
+    print("Quotes")
+
+    db_product = Product.query.filter(Product.amazon_id == amazon_id).first()
+
+    # Access new price history and associated time data
+    newprice = product['data']['NEW']
+    newpricetime = product['data']['NEW_time']
+    
+    #loop over entries
+    for i in range(len(newprice)):
+
+        current_time = newpricetime[i]
+        current_price = newprice[i]
+
+        quote_entry = Quote(product=db_product,
+                            date_time=current_time,
+                            price=current_price)
+
+        db.session.add(quote_entry)
+
+    db.session.commit()
+
+
 if __name__ == "__main__":
+    connect_to_db(app)
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
     app.debug = True 

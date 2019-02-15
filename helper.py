@@ -7,7 +7,7 @@ import os
 accesskey = os.environ["API_KEY"]
 
 
-def get_product_id(amazon_url):
+def get_amazon_id(amazon_url):
     """ When Amazon url string is presented in the search field, return 
     product id
     """
@@ -18,14 +18,15 @@ def get_product_id(amazon_url):
     for i in range(0, len(split_url_list) - 1):
 
         if split_url_list[i] == "dp":
-            product_id = split_url_list[i+1]
-            return product_id
+            amazon_id = split_url_list[i+1]
+            print(amazon_id)
+            return amazon_id
 
 
-def get_product_data(product_id):
+def get_product_data(amazon_id):
     """ Send request to get all product data"""
     
     api = keepaAPI.API(accesskey)
-    products = api.ProductQuery(product_id)
+    products = api.ProductQuery(amazon_id)
 
-    return products[0]
+    return products
