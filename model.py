@@ -29,9 +29,11 @@ class Quote(db.Model):
     __tablename__ = "quotes"
 
     quote_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.product_id'),)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'),)
     date_time = db.Column(db.DateTime,)
     price = db.Column(db.Float,)
+
+
 
     def __repr__(self):
         """Provide helpful representation when printed."""
