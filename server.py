@@ -75,7 +75,7 @@ def load_quotes(product, amazon_id):
                             price=current_price)
 
         db.session.add(quote_entry)
-    db.session.commit()
+        db.session.commit()
 
 
 
