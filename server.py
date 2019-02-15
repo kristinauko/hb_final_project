@@ -70,7 +70,7 @@ def load_quotes(product, amazon_id):
         current_time = newpricetime[i]
         current_price = newprice[i]
 
-        quote_entry = Quote(product_id=db_product,
+        quote_entry = Quote(product_id=db_product.product_id,
                             date_time=current_time,
                             price=current_price)
 
