@@ -13,7 +13,7 @@ class Product(db.Model):
 
     product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     amazon_id = db.Column(db.String(25), nullable=False,)
-    name = db.Column(db.String(100), nullable=False,)
+    name = db.Column(db.String(300), nullable=False,)
 
     quotes = db.relationship('Quote', backref='product')
 
@@ -23,6 +23,7 @@ class Product(db.Model):
         return f"""<Product product_id={self.product_id} 
                    amazon_id={self.amazon_id} 
                    name={self.name}"""
+
 
 class Quote(db.Model):
     """Quote model."""
@@ -34,7 +35,6 @@ class Quote(db.Model):
     price = db.Column(db.Float,)
 
 
-
     def __repr__(self):
         """Provide helpful representation when printed."""
 
@@ -42,7 +42,6 @@ class Quote(db.Model):
                     product_id={self.product_id} 
                    date_time={self.date_time} 
                    price={self.price}"""
-
 
    
 ##############################################################################
@@ -60,8 +59,8 @@ def connect_to_db(app):
 
 
 if __name__ == "__main__":
-    # As a convenience, if we run this module interactively, it will leave
-    # you in a state of being able to work with the database directly.
+    # If we run this module interactively,
+    # we are able to work with the database directly.
     from server import app
 
     connect_to_db(app)
