@@ -40,6 +40,8 @@ def get_prices():
 
 @app.route("/get-prices.json")
 
+def create_json():
+
     product_quotes_list = Quote.query.filter(Product.amazon_id == 'B077JFK5YH').all()
 
     date_time_list = []

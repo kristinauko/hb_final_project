@@ -13,7 +13,7 @@ class Product(db.Model):
 
     product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     amazon_id = db.Column(db.String(25), nullable=False,)
-    name = db.Column(db.String(300), nullable=False,)
+    name = db.Column(db.String(500), nullable=False,)
 
     quotes = db.relationship('Quote', backref='product')
 
