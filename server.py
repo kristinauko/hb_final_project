@@ -39,14 +39,14 @@ def get_prices():
     return render_template("get-prices.html", product=product, amazon_id=amazon_id)
 
 @app.route("/get-prices.json")
-
 def create_json():
 
+    amazon_id = request.args.get('amazon_id')
     product_quotes_list = Quote.query.filter(Product.amazon_id == 'B077JFK5YH').all()
 
     date_time_list = []
     price_list = []
-    guotes_dictionary = {}
+    quotes_dictionary = {}
 
     # for item in product_quotes_list:
     #     timestamp = item.date_time.strftime("%Y-%m-%d")
@@ -57,10 +57,10 @@ def create_json():
     date_time_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
     price_list=[5, 8, 10]
 
-    guotes_dictionary['date'] = date_time_list
-    guotes_dictionary['price'] = price_list
+    quotes_dictionary['date'] = date_time_list
+    quotes_dictionary['price'] = price_list
 
-    return jsonify(guotes_dictionary)
+    return jsonify(quotes_dictionary)
 
 
 def load_products(product):

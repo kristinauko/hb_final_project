@@ -2,46 +2,41 @@
 <html>
     <head>
         <title>Price data</title>
-        <script src="jquery-3.3.1.min.js"></script>
+          <script
+          src="https://code.jquery.com/jquery-3.3.1.min.js"
+          integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+          crossorigin="anonymous"></script>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     </head>
     <body>
         <h1>{{ product['title'] }}</h1>
             <div class='product-div'>
-                <h3>{{ amazon_id }}</h3>
+                <h3 id=amazon_id >{{ amazon_id }}</h3>
 
                 <div id='priceDate' style='width:800px;height:400px;''>
 
                 <script>
+                    let amazon_id = $('#amazon_id').html();
 
-                    // $.get('/get-prices.json', {amazon_id}, results) => {
-                    //     console.log(results);
-                    // }
+                    $.get('/get-prices.json', {amazon_id: amazon_id}, (results) => {
+                        console.log(results);
+                        console.log(results.date);
+                        console.log(results.price);
 
-                //     $(function() {
-                //         $.get({
-                //             url: '/get-prices.json',
-                //             success: function(result) {
-                //                 date_time_list = result['date'];
-                //                 price_list = result['price'];
-                //                 console.log(date_time_list);
-                //                 console.log(price_list)
-                //             }
-                //         });
+                        let date_time_list = results.date;
+                        let price_list = results.price;
 
-                    let date_time_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
-                    let price_list=[5, 8, 10]
+                        let trace1 = { 
+                          x: date_time_list,
+                          y: price_list,
+                          mode: 'markers',
+                          type: 'scatter'
+                        };
 
-                    let trace1 = { 
-                      x: date_time_list,
-                      y: price_list,
-                      mode: 'markers',
-                      type: 'scatter'
-                    };
+                        let data = [trace1];
 
-                    let data = [trace1];
-
-                    Plotly.newPlot('priceDate', data);
+                        Plotly.newPlot('priceDate', data);
+                    });
 
                 </script>
 
