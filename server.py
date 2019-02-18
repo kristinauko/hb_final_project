@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request, render_template, session
+from flask import Flask, redirect, request, render_template, session, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import SQLAlchemy
 from jinja2 import StrictUndefined
@@ -6,6 +6,7 @@ from helper import get_amazon_id, get_product_data
 from model import Product, Quote, connect_to_db, db
 from datetime import datetime
 from sqlalchemy import func
+import json
 
 
 app = Flask(__name__)
@@ -34,14 +35,34 @@ def get_prices():
 
     load_products(product) 
     load_quotes(product, amazon_id)  
+    
+    return render_template("get-prices.html", product=product, amazon_id=amazon_id)
 
-    return render_template("get-prices.html", product=product)
+@app.route("/get-prices.json")
+
+    product_quotes_list = Quote.query.filter(Product.amazon_id == 'B077JFK5YH').all()
+
+    date_time_list = []
+    price_list = []
+    guotes_dictionary = {}
+
+    # for item in product_quotes_list:
+    #     timestamp = item.date_time.strftime("%Y-%m-%d")
+    #     date_time_list.append(timestamp)
+    #     price_list.append(item.price)
+
+
+    date_time_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
+    price_list=[5, 8, 10]
+
+    guotes_dictionary['date'] = date_time_list
+    guotes_dictionary['price'] = price_list
+
+    return jsonify(guotes_dictionary)
 
 
 def load_products(product):
     """Load products to database from API request payload"""
-
-    print("Product")
 
     amazon_id = product['asin'] #amazon id for product
     name = product['title'] #name for the product
@@ -56,8 +77,6 @@ def load_products(product):
 
 def load_quotes(product, amazon_id):
     """Load quotes to database from API request payload"""
-
-    print("Quotes")
 
     db_product = Product.query.filter(Product.amazon_id == amazon_id).first() #access product_id in products table
 
@@ -76,7 +95,6 @@ def load_quotes(product, amazon_id):
 
         db.session.add(quote_entry)
         db.session.commit()
-
 
 
 if __name__ == "__main__":

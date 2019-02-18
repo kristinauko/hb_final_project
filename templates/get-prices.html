@@ -6,16 +6,27 @@
     </head>
     <body>
         <h1>{{ product['title'] }}</h1>
-            <div class="product-div">
+            <div class='product-div'>
                 <h3></h3>
-                <div id="tester" style="width:900px;height:250px;"></div>
+
+                <div id='priceDate' style='width:600px;height:250px;''></div>
+
                 <script>
-                    TESTER = document.getElementById('tester');
-                    Plotly.plot( TESTER, [{
-                    x: [1, 2, 3, 4, 5],
-                    y: [1, 2, 4, 8, 16] }], {
-                    margin: { t: 0 } } );
+
+                    var trace1 = {
+                      x: [date_time_list],
+                      y: [price_list],
+                      mode: 'markers',
+                      type: 'scatter'
+                    };
+
+                    var data = [trace1];
+
+                    Plotly.newPlot('priceDate', data);
+
                 </script>
+
+               
                 <h3>Largest discount period</h3>
             </div>
     </body>
