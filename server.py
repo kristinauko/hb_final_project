@@ -34,7 +34,7 @@ def get_prices():
     product = product_payload[0] #extracts product from product payload 
 
     load_products(product) 
-    load_quotes(product, amazon_id)  
+    #load_quotes(product, amazon_id)  
     
     return render_template("get-prices.html", product=product, amazon_id=amazon_id)
 
@@ -69,26 +69,35 @@ def load_products(product):
     amazon_id = product['asin'] #amazon id for product
     name = product['title'] #name for the product
 
+    db_amazon = Product.query.filter(Product.amazon_id == amazon_id).all()
 
-    product_entry = Product(amazon_id=amazon_id, 
-                            name=name)
+    if len(db_amazon) == 0:
 
-    db.session.add(product_entry)
-    db.session.commit()
+        product_entry = Product(amazon_id=amazon_id, 
+                                name=name)
+
+        db.session.add(product_entry)
+        db.session.commit()
+
+        load_quotes(product, amazon_id)  
+
+    else: 
+
+         update_quotes(product, amazon_id)
 
 
 def load_quotes(product, amazon_id):
     """Load quotes to database from API request payload"""
 
-    db_product = Product.query.filter(Product.amazon_id == amazon_id).first() #access product_id in products table
-
+    #access product_id in products table
+    db_product = Product.query.filter(Product.amazon_id == amazon_id).first() 
     newprice = product['data']['NEW'] #acess new products' price history
-    newpricetime = product['data']['NEW_time'] #access new products' timestamps
+    newtime = product['data']['NEW_time'] #access new products' timestamps
     
     #loop over entries
     for i in range(len(newprice)):
 
-        current_time = newpricetime[i]
+        current_time = newtime[i]
         current_price = newprice[i]
 
         quote_entry = Quote(product_id=db_product.product_id,
@@ -97,6 +106,14 @@ def load_quotes(product, amazon_id):
 
         db.session.add(quote_entry)
         db.session.commit()
+
+
+
+def update_quotes(product, amazon_id):
+     """Update quotes to database from API request payload"""
+
+     print("Update QUOTES was called")
+
 
 
 if __name__ == "__main__":
