@@ -69,9 +69,9 @@ def load_products(product):
     amazon_id = product['asin'] #amazon id for product
     name = product['title'] #name for the product
 
-    db_amazon = Product.query.filter(Product.amazon_id == amazon_id).all()
+    product_entry = Product.query.filter(Product.amazon_id == amazon_id).first()
 
-    if len(db_amazon) == 0:
+    if not product_entry:
 
         product_entry = Product(amazon_id=amazon_id, 
                                 name=name)
@@ -79,20 +79,18 @@ def load_products(product):
         db.session.add(product_entry)
         db.session.commit()
 
-        load_quotes(product, amazon_id)  
+        load_quotes(product_entry, product)  
 
     else: 
+         update_quotes(product_entry, product)
 
-         update_quotes(product, amazon_id)
 
-
-def load_quotes(product, amazon_id):
+def load_quotes(product_entry, product_data):
     """Load quotes to database from API request payload"""
 
     #access product_id in products table
-    db_product = Product.query.filter(Product.amazon_id == amazon_id).first() 
-    newprice = product['data']['NEW'] #acess new products' price history
-    newtime = product['data']['NEW_time'] #access new products' timestamps
+    newprice = product_data['data']['NEW'] #acess new products' price history
+    newtime = product_data['data']['NEW_time'] #access new products' timestamps
     
     #loop over entries
     for i in range(len(newprice)):
@@ -100,19 +98,26 @@ def load_quotes(product, amazon_id):
         current_time = newtime[i]
         current_price = newprice[i]
 
-        quote_entry = Quote(product_id=db_product.product_id,
-                            date_time=current_time,
+        quote_entry = Quote(date_time=current_time,
                             price=current_price)
 
-        db.session.add(quote_entry)
+        product_entry.quotes.append(quote_entry) #
+    
+    db.session.add(product_entry)
+    db.session.commit()
+
+
+
+def update_quotes(product_entry, product_data):
+    """Update quotes to database from API request payload"""
+
+    for quote in product_entry.quotes:
+        db.session.delete(quote)
         db.session.commit()
 
-
-
-def update_quotes(product, amazon_id):
-     """Update quotes to database from API request payload"""
-
-     print("Update QUOTES was called")
+    load_quotes(product_entry, product_data)
+    
+    print("Update QUOTES was called")
 
 
 
