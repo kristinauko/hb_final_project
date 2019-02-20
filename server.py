@@ -30,12 +30,15 @@ def get_prices():
     """Renders template for displaying prices"""
 
     amazon_url = request.args.get("amazon-url") #get input which is Amazon url
+
+    # if amazon_url == "": #if user submits empty string 
+    #     return render_template("homepage.html") #renders /
+    # else:
     amazon_id = get_amazon_id(amazon_url) #extract amazon item unique id from Amazon url
     product_payload = get_product_data(amazon_id)  #query Keepa API
     product = product_payload[0] #extracts product from product payload 
 
     load_products(product) 
-    #load_quotes(product, amazon_id)  
     
     return render_template("get-prices.html", product=product, amazon_id=amazon_id)
 

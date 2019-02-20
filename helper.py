@@ -30,3 +30,6 @@ def get_product_data(amazon_id):
     products = api.ProductQuery(amazon_id)
 
     return products
+
+
+
