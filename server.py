@@ -107,6 +107,10 @@ def load_quotes(product_entry, product_data):
 
     newprice = product_data['data']['NEW'] #acess new products' price history
     newtime = product_data['data']['NEW_time'] #access new products' timestamps
+ 
+    if (newprice == []) or (math.isnan(newprice[0])):
+        newprice = product_data['data']['AMAZON']
+        newtime = product_data['data']['AMAZON_time']
 
     #loop over entries
     for i in range(len(newprice)):
