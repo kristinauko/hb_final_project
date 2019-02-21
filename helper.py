@@ -21,7 +21,11 @@ def get_amazon_id(amazon_url):
             amazon_id = split_url_list[i+1]
             print(amazon_id)
             return amazon_id
-
+        elif split_url_list[i] == "product":
+            amazon_id = split_url_list[i+1]
+            print(amazon_id)
+            return amazon_id
+            
 
 def get_product_data(amazon_id):
     """ Send request to get all product data"""

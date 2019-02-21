@@ -107,7 +107,7 @@ def load_quotes(product_entry, product_data):
 
     newprice = product_data['data']['NEW'] #acess new products' price history
     newtime = product_data['data']['NEW_time'] #access new products' timestamps
-    
+
     #loop over entries
     for i in range(len(newprice)):
 
