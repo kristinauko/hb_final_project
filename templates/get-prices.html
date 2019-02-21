@@ -26,21 +26,24 @@
                         let date_time_list = results.date;
                         let price_list = results.price;
 
-                        let trace1 = { 
+                        let plot = { 
                           x: date_time_list,
                           y: price_list,
                           mode: 'markers',
                           type: 'scatter'
                         };
 
-                        let data = [trace1];
+                        let data = [plot];
 
                         Plotly.newPlot('priceDate', data);
+
+                        $('#min_price').text('Lowest Price: ' + results.min_price);
+
                     });
 
                 </script>
 
                 </div>
-                <h3>Largest discount period</h3>
+                <h3 id="min_price"></h3>
             </div>
     </body>

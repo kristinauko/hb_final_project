@@ -43,6 +43,7 @@ def get_prices():
     
     return render_template("get-prices.html", name=name, amazon_id=amazon_id)
 
+
 @app.route("/get-prices.json")
 def create_json():
 
@@ -66,6 +67,9 @@ def create_json():
     print(price_list)
     print(date_time_list)
 
+    min_price = min(price_list)
+
+
     #This is a hardcoded string for testing if plotting works
     # date_time_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
     # price_list=[5, 8, 10]
@@ -77,6 +81,7 @@ def create_json():
     #Create a dictionary with keys 'date' and 'price'
     quotes_dictionary['date'] = (date_time_list)
     quotes_dictionary['price'] = (price_list)
+    quotes_dictionary['min_price'] = (min_price)
 
     return jsonify(quotes_dictionary)
 
@@ -136,8 +141,7 @@ def update_quotes(product_entry, product_data):
         db.session.commit()
 
     load_quotes(product_entry, product_data)
-    
-    print("Update QUOTES was called")
+
 
 
 if __name__ == "__main__":
