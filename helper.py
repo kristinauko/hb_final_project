@@ -12,8 +12,8 @@ def get_amazon_id(amazon_url):
     product id
     """
 
-    amazon_url.replace("?", "/")
-    split_url_list = amazon_url.split("/")
+    modified_amazon_url = amazon_url.replace("?", "/")
+    split_url_list = modified_amazon_url.split("/")
 
     for i in range(0, len(split_url_list) - 1):
 
@@ -26,7 +26,7 @@ def get_amazon_id(amazon_url):
             print(amazon_id)
             return amazon_id
 
-# https://www.amazon.com/dp/B07N1H4YFH?aaxitk=9u7mnLyUfNJip2hHgCgrKw
+
 def get_product_data(amazon_id):
     """ Send request to get all product data"""
     
