@@ -31,9 +31,6 @@ def get_prices():
 
     amazon_url = request.args.get("amazon-url") #get input which is Amazon url
 
-    # if amazon_url == "": #if user submits empty string 
-    #     return render_template("homepage.html") #renders /
-    # else:
     amazon_id = get_amazon_id(amazon_url) #extract amazon item unique id from Amazon url
     product_payload = get_product_data(amazon_id)  #query Keepa API
     product = product_payload[0] #extracts product from product payload 
@@ -64,10 +61,10 @@ def create_json():
             price_list.append(item.price)
             timestamp = item.date_time.strftime("%Y-%m-%d")
             date_time_list.append(timestamp)
-    print(price_list)
-    print(date_time_list)
 
-    min_price = min(price_list)
+    min_price = min(price_list, default="Unknown for this product")
+
+    #https://www.amazon.com/Nutri-Lock-Vacuum-Sealer-Bags-Bags/dp/B07H22363S/ref=sr_1_sc_3?s=sporting-goods&ie=UTF8&qid=1550781069&sr=1-3-spell&keywords=galon+ziplock+bags
 
 
     #This is a hardcoded string for testing if plotting works
@@ -114,7 +111,11 @@ def load_quotes(product_entry, product_data):
     newprice = product_data['data']['NEW'] #acess new products' price history
     newtime = product_data['data']['NEW_time'] #access new products' timestamps
  
-    if (newprice == []) or (math.isnan(newprice[0])):
+    if (newprice == []):
+        newprice = product_data['data']['AMAZON']
+        newtime = product_data['data']['AMAZON_time']
+
+    if (math.isnan(newprice[0])):
         newprice = product_data['data']['AMAZON']
         newtime = product_data['data']['AMAZON_time']
 
