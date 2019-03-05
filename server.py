@@ -2,7 +2,7 @@ from flask import Flask, redirect, request, render_template, session, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import SQLAlchemy
 from jinja2 import StrictUndefined
-from helper import get_amazon_id, get_product_data
+from query_helper import get_amazon_id, get_product_data
 from model import Product, Quote, connect_to_db, db
 from datetime import datetime
 from sqlalchemy import func
@@ -72,8 +72,8 @@ def create_json():
     # price_list=[5, 8, 10]
 
     #This is a hardcoded string for testing if future prices/dates plotting works
-    prediction_dates_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
-    prediction_prices_list=[5, 8, 10]
+    # prediction_dates_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
+    # prediction_prices_list=[5, 8, 10]
     
     #Create a dictionary with keys 'date' and 'price'
     quotes_dictionary['date'] = (date_time_list)
