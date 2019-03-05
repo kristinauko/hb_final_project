@@ -3,6 +3,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import SQLAlchemy
 from jinja2 import StrictUndefined
 from query_helper import get_amazon_id, get_product_data
+from database_helper import load_products, load_quotes, update_quotes
 from model import Product, Quote, connect_to_db, db
 from datetime import datetime
 from sqlalchemy import func
@@ -72,8 +73,8 @@ def create_json():
     # price_list=[5, 8, 10]
 
     #This is a hardcoded string for testing if future prices/dates plotting works
-    # prediction_dates_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
-    # prediction_prices_list=[5, 8, 10]
+    prediction_dates_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
+    prediction_prices_list=[5, 8, 10]
     
     #Create a dictionary with keys 'date' and 'price'
     quotes_dictionary['date'] = (date_time_list)
@@ -85,65 +86,6 @@ def create_json():
     return jsonify(quotes_dictionary)
 
 
-def load_products(product):
-    """Load products to database from API request payload"""
-
-    amazon_id = product['asin'] #amazon id for product
-    name = product['title'] #name for the product
-
-    product_entry = Product.query.filter(Product.amazon_id == amazon_id).first()
-
-    if not product_entry:
-
-        product_entry = Product(amazon_id=amazon_id, 
-                                name=name)
-
-        db.session.add(product_entry)
-        db.session.commit()
-
-        load_quotes(product_entry, product)  
-
-    else: 
-         update_quotes(product_entry, product)
-
-
-def load_quotes(product_entry, product_data):
-    """Load quotes to database from API request payload"""
-
-    newprice = product_data['data']['NEW'] #acess new products' price history
-    newtime = product_data['data']['NEW_time'] #access new products' timestamps
- 
-    if (newprice == []):
-        newprice = product_data['data']['AMAZON']
-        newtime = product_data['data']['AMAZON_time']
-
-    if (math.isnan(newprice[0])):
-        newprice = product_data['data']['AMAZON']
-        newtime = product_data['data']['AMAZON_time']
-
-    #loop over entries
-    for i in range(len(newprice)):
-
-        current_time = newtime[i]
-        current_price = newprice[i]
-
-        quote_entry = Quote(date_time=current_time,
-                            price=current_price)
-
-        product_entry.quotes.append(quote_entry) 
-    
-    db.session.add(product_entry)
-    db.session.commit()
-
-
-def update_quotes(product_entry, product_data):
-    """Update quotes to database from API request payload"""
-
-    for quote in product_entry.quotes:
-        db.session.delete(quote)
-        db.session.commit()
-
-    load_quotes(product_entry, product_data)
 
 
 
