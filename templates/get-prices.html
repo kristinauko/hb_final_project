@@ -25,22 +25,24 @@
 
                         let date_time_list = results.date;
                         let price_list = results.price;
-                        // let predicted_date_time_list = results.predicted_date;
-                        // let predicted_price_list = results.predicted_price;
+                        let predicted_date_time_list = results.prediction_dates;
+                        let predicted_price_list = results.prediction_prices;
 
                         let plot = { 
                           x: date_time_list,
                           y: price_list,
                           mode: 'lines+markers',
                           type: 'scatter',
+                          name: 'Pricing history',
                           line: {shape: 'spline'}
                         };
 
                         let prediction_plot = { 
-                          x: ["2018-09-04", "2018-10-04", "2019-11-04"],
-                          y: [5, 8, 10],
+                          x: predicted_date_time_list,
+                          y: predicted_price_list,
                           mode: 'lines+markers',
                           type: 'scatter',
+                          name: 'Pricing prediction',
                           line: {shape: 'spline'}
                         };
 
