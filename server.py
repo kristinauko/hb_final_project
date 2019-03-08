@@ -3,9 +3,11 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import SQLAlchemy
 from jinja2 import StrictUndefined
 from query_helper import get_amazon_id, get_product_data
+from data_helper import clean_data, populate_future_dates
 from model import Product, Quote, connect_to_db, db
 from datetime import datetime
 from sqlalchemy import func
+import pandas as pd
 
 import json
 import math
@@ -55,17 +57,9 @@ def create_json():
     #Get product quotes list: join Product and Quote tables, get entries with specific amazon_id from Products table
     product_quotes_list = Quote.query.join(Product, Quote.product_id==Product.product_id).filter(Product.amazon_id==amazon_id).all()
 
-    date_time_list = []
-    price_list = []
     quotes_dictionary = {}
 
-    #Take product_quotes list and extract two lists - price_list and date_time_list
-    #Ignore NaN prices and coresponding timestamps
-    for item in product_quotes_list:
-        if not math.isnan(item.price):
-            price_list.append(item.price)
-            timestamp = item.date_time.strftime("%Y-%m-%d")
-            date_time_list.append(timestamp)
+    price_list, date_time_list = clean_data(product_quotes_list)
 
     min_price = min(price_list, default="Unknown for this product")
 
@@ -75,21 +69,19 @@ def create_json():
     # price_list=[5, 8, 10]
 
     #This is a hardcoded string for testing if future prices/dates plotting works
+    #prediction_dates_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
+    #prediction_prices_list = [5, 8, 10]
+
     prediction_prices_list= get_prediction()
-    prediction_dates_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
 
-    #pd.date_range(pd.to_datetime("today"), periods=len(prediction_prices_list), freq='5min').strftime("%Y-%m-%d")
-    #prediction_prices_list=[5, 8, 10]
-
-
-
+    prediction_dates_list = populate_future_dates(len(prediction_prices_list))
     
     #Create a dictionary with keys 'date' and 'price'
-    quotes_dictionary['date'] = (date_time_list)
-    quotes_dictionary['price'] = (price_list)
-    quotes_dictionary['prediction_dates'] = (prediction_dates_list)
+    quotes_dictionary['date'] = date_time_list
+    quotes_dictionary['price'] = price_list
+    quotes_dictionary['prediction_dates'] = prediction_dates_list[1:]
     quotes_dictionary['prediction_prices'] = prediction_prices_list
-    quotes_dictionary['min_price'] = (min_price)
+    quotes_dictionary['min_price'] = min_price
 
     return jsonify(quotes_dictionary)
 
