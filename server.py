@@ -3,12 +3,16 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import SQLAlchemy
 from jinja2 import StrictUndefined
 from query_helper import get_amazon_id, get_product_data
-from database_helper import load_products, load_quotes, update_quotes
 from model import Product, Quote, connect_to_db, db
 from datetime import datetime
 from sqlalchemy import func
+
 import json
 import math
+
+
+from database_helper import load_products, load_quotes, update_quotes
+from training import get_prediction
 
 
 app = Flask(__name__)
@@ -65,28 +69,29 @@ def create_json():
 
     min_price = min(price_list, default="Unknown for this product")
 
-    #https://www.amazon.com/Nutri-Lock-Vacuum-Sealer-Bags-Bags/dp/B07H22363S/ref=sr_1_sc_3?s=sporting-goods&ie=UTF8&qid=1550781069&sr=1-3-spell&keywords=galon+ziplock+bags
-
 
     #This is a hardcoded string for testing if pricing/dates plotting works
     # date_time_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
     # price_list=[5, 8, 10]
 
     #This is a hardcoded string for testing if future prices/dates plotting works
+    prediction_prices_list= get_prediction()
     prediction_dates_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
-    prediction_prices_list=[5, 8, 10]
+
+    #pd.date_range(pd.to_datetime("today"), periods=len(prediction_prices_list), freq='5min').strftime("%Y-%m-%d")
+    #prediction_prices_list=[5, 8, 10]
+
+
+
     
     #Create a dictionary with keys 'date' and 'price'
     quotes_dictionary['date'] = (date_time_list)
     quotes_dictionary['price'] = (price_list)
     quotes_dictionary['prediction_dates'] = (prediction_dates_list)
-    quotes_dictionary['prediction_prices'] = (prediction_prices_list)
+    quotes_dictionary['prediction_prices'] = prediction_prices_list
     quotes_dictionary['min_price'] = (min_price)
 
     return jsonify(quotes_dictionary)
-
-
-
 
 
 if __name__ == "__main__":
