@@ -8,7 +8,7 @@ import os
 import tensorflow as tf
 
 
- #data scaling: convert dataset to values from 0 to 1
+#data scaling: convert dataset to values from 0 to 1
 scaler = MinMaxScaler(feature_range=(0, 1))
 
 #PREPROCESSING DATA, STRUCTURING
@@ -18,7 +18,17 @@ def get_prediction():
 
     dataset_train, dataset_test = process_data()
     x_train, y_train, x_test, y_test  = scale_data(dataset_train, dataset_test)
-    python_list = build_model(x_train, y_train, x_test, y_test)
+    model = get_model(x_train)
+
+    if(not os.path.exists(r'/home/vagrant/src/phone_prediction.h5')):
+        model.fit(x_train, y_train, epochs=50, batch_size=32)
+        model.save(r'/home/vagrant/src/phone_prediction.h5')
+
+    predictions = model.predict(x_test) 
+    #inverse transformation we did
+    predictions = scaler.inverse_transform(predictions)
+
+    python_list = get_python_list(predictions)
 
     return python_list
 
@@ -64,7 +74,7 @@ def scale_data(dataset_train, dataset_test):
     return x_train, y_train, x_test, y_test 
 
 
-def build_model(x_train, y_train, x_test, y_test):
+def get_model(x_train):
     """Build AI model"""
 
     tf.logging.set_verbosity(tf.logging.ERROR)
@@ -95,17 +105,8 @@ def build_model(x_train, y_train, x_test, y_test):
 
     model.compile(loss='mean_squared_error', optimizer='adam')
 
-    if(not os.path.exists(r'/home/vagrant/src/phone_prediction.h5')):
-        model.fit(x_train, y_train, epochs=50, batch_size=32)
-        model.save(r'/home/vagrant/src/phone_prediction.h5')
+    return model
 
-    predictions = model.predict(x_test) 
-    #inverse transformation we did
-    predictions = scaler.inverse_transform(predictions)
-
-    python_list = get_python_list(predictions)
-
-    return python_list
 
 def create_my_dataset(df):
     """Create empty lists, and put dataset in them"""
