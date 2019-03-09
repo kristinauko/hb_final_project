@@ -2,20 +2,18 @@ from flask import Flask, redirect, request, render_template, session, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import SQLAlchemy
 from jinja2 import StrictUndefined
-from query_helper import get_amazon_id, get_product_data
-from data_helper import clean_data, populate_future_dates
-from model import Product, Quote, connect_to_db, db
 from datetime import datetime
 from sqlalchemy import func
-import pandas as pd
 
+import pandas as pd
 import json
 import math
 
-
+from model import Product, Quote, connect_to_db, db
 from database_helper import load_products, load_quotes, update_quotes
+from query_helper import get_amazon_id, get_product_data
+from data_helper import clean_data, populate_future_dates
 from training import get_prediction
-
 
 app = Flask(__name__)
 app.jinja_env.undefined = StrictUndefined
@@ -57,12 +55,13 @@ def create_json():
     #Get product quotes list: join Product and Quote tables, get entries with specific amazon_id from Products table
     product_quotes_list = Quote.query.join(Product, Quote.product_id==Product.product_id).filter(Product.amazon_id==amazon_id).all()
 
+    print(product_quotes_list)
+    
     quotes_dictionary = {}
 
     price_list, date_time_list = clean_data(product_quotes_list)
 
     min_price = min(price_list, default="Unknown for this product")
-
 
     #This is a hardcoded string for testing if pricing/dates plotting works
     # date_time_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
