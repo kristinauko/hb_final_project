@@ -20,7 +20,7 @@ def get_prediction():
     x_train, y_train, x_test, y_test  = scale_data(dataset_train, dataset_test)
     model = get_model(x_train)
 
-    if(not os.path.exists(r'/home/vagrant/src/phone_prediction.h5')):
+    if(not os.path.exists(get_model_path("phone_prediction"))):
         model.fit(x_train, y_train, epochs=50, batch_size=32)
         model.save(r'/home/vagrant/src/phone_prediction.h5')
 
@@ -121,6 +121,14 @@ def create_my_dataset(df):
     y = np.array(y)
     
     return x,y
+
+
+def get_model_path(amazon_id):
+
+    path_to_model = '/home/vagrant/src/' + str(amazon_id) + '.h5'
+
+    return path_to_model
+
 
 
 
