@@ -3,7 +3,9 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential, load_model
 from keras.layers import LSTM, Dense, Dropout
+from keras import backend as Clear
 from data_helper import get_python_list
+
 import os
 import tensorflow as tf
 
@@ -18,17 +20,23 @@ def get_prediction():
 
     dataset_train, dataset_test = process_data()
     x_train, y_train, x_test, y_test  = scale_data(dataset_train, dataset_test)
-    model = get_model(x_train)
+    
 
-    if(not os.path.exists(get_model_path("phone_prediction"))):
-        model.fit(x_train, y_train, epochs=50, batch_size=32)
-        model.save(r'/home/vagrant/src/phone_prediction.h5')
+    if(not os.path.exists(get_model_path("phone_prediction2"))):
+        model = get_model(x_train)
+        model.fit(x_train, y_train, epochs=1, batch_size=32)
+        model.save(get_model_path("phone_prediction2"))
+        
+    else:
+        model = load_model(get_model_path("phone_prediction2"))
 
     predictions = model.predict(x_test) 
     #inverse transformation we did
     predictions = scaler.inverse_transform(predictions)
 
     python_list = get_python_list(predictions)
+
+    Clear.clear_session()
 
     return python_list
 
