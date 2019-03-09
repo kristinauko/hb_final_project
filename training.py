@@ -3,19 +3,19 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential, load_model
 from keras.layers import LSTM, Dense, Dropout
+from data_helper import get_python_list
 import os
 import tensorflow as tf
-import itertools
+
 
 #PREPROCESSING DATA, STRUCTURING
 
-def get_prediction():
-    """ Preprocess given data"""
 
+def get_prediction():
     #open dataset
     df = pd.read_csv(r'~/src/phone.csv')
 
-    #prich pricing data
+    #take pricing data
     df = df['Close'].values
 
     #keras requirement: reshape data, convert original data
@@ -43,6 +43,8 @@ def get_prediction():
     x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
     x_test, y_test = create_my_dataset(dataset_test)
     x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
+
+
 
     #BUILDING MODEL
 
@@ -102,18 +104,7 @@ def create_my_dataset(df):
     return x,y
 
 
-def get_python_list(predictions):
-    """Take numpy array and return Python list"""
 
-    merged_prediction = list(itertools.chain.from_iterable(predictions))
-
-    python_list = []
-
-    for item in merged_prediction:
-        pyval = item.item()
-        rounded_value = round(pyval, 2)
-        python_list.append(rounded_value)
-    return python_list
     
 
 

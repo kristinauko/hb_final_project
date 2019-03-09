@@ -1,6 +1,7 @@
 import pandas as pd
 
 import math
+import itertools
 from datetime import datetime
 
 
@@ -32,6 +33,20 @@ def populate_future_dates(list_length):
         future_dates.append(item)
 
     return future_dates
+
+
+def get_python_list(predictions):
+    """Take numpy array and return Python list"""
+
+    merged_prediction = list(itertools.chain.from_iterable(predictions))
+
+    python_list = []
+
+    for item in merged_prediction:
+        pyval = item.item()
+        rounded_value = round(pyval, 2)
+        python_list.append(rounded_value)
+    return python_list
 
 
 
