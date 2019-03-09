@@ -18,10 +18,13 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 def get_prediction():
     """Get prediction from the given data"""
 
+    #process data
     dataset_train, dataset_test = process_data()
+
+    #scale data
     x_train, y_train, x_test, y_test  = scale_data(dataset_train, dataset_test)
     
-
+    #check if model for the product exists and use it, otherwise create new one
     if(not os.path.exists(get_model_path("phone_prediction2"))):
         model = get_model(x_train)
         model.fit(x_train, y_train, epochs=1, batch_size=32)
@@ -34,8 +37,10 @@ def get_prediction():
     #inverse transformation we did
     predictions = scaler.inverse_transform(predictions)
 
+    #convert numpy array to python list
     python_list = get_python_list(predictions)
 
+    #clear the session after creating or loading model
     Clear.clear_session()
 
     return python_list
@@ -51,7 +56,6 @@ def process_data():
 
     #keras requirement: reshape data, convert original data
     df = df.reshape(-1,1)
-    print(df.shape)
 
     #split dataset into train and test datasets
     #train 80 percent of rows
