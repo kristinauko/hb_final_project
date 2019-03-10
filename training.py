@@ -49,25 +49,21 @@ def get_prediction():
   
     if os.path.exists(get_model_path("phone_prediction2")):
 
-        #print("STARTED THE Prediction **********************************")
-
         #upload model
         model = load_model(get_model_path("phone_prediction2")) 
 
-        #print("LOADED MODEL **********************************")
-
+        #reshape dataset
         df = df.reshape(-1,1)
 
+        #run scaler
         scaler.fit(df)
 
+        #get inputs for prediction
         inputs = df[len(df) - PREDICT_WINDOW:]
-        
-        print(type(inputs), len(inputs), "***********************Length of inputs")
 
-        # print(len(inputs), "***********************Length of inputs after fiting and transforming")
+        #transform inputs
         inputs = scaler.transform(inputs)
 
-        print(len(inputs), "***********************Length of inputs after  transforming")
         # Slide the window forward by one, so the last predicted value now becomes the head of 
         # the new window and predict the next, slide again, and so on
         for i in range(PREDICT_WINDOW):
@@ -79,11 +75,9 @@ def get_prediction():
             nextPrice = model.predict(x_predict)
                 
             inputs = np.append(inputs, nextPrice, axis=0)
-            print(i, "********************************* this is I ************************************")
 
         #inverse transformation we did
         predictions = scaler.inverse_transform(inputs[PREDICT_WINDOW:])
-        print(len(predictions), "******************* Length of predictions")
     
         #get predictions
         # predictions = get_prediction_array(df, model)
