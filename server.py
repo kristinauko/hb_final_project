@@ -12,7 +12,7 @@ import math
 from model import Product, Quote, connect_to_db, db
 from database_helper import load_products, load_quotes, update_quotes
 from query_helper import get_amazon_id, get_product_data
-from data_helper import clean_data, populate_future_dates
+from data_helper import clean_data, populate_future_dates, get_pd_dataframe
 from training import get_prediction
 
 app = Flask(__name__)
@@ -56,7 +56,7 @@ def create_json():
     product_quotes_list = Quote.query.join(Product, Quote.product_id==Product.product_id).filter(Product.amazon_id==amazon_id).all()
 
     print(product_quotes_list)
-    
+
     quotes_dictionary = {}
 
     price_list, date_time_list = clean_data(product_quotes_list)
@@ -70,6 +70,10 @@ def create_json():
     #This is a hardcoded string for testing if future prices/dates plotting works
     #prediction_dates_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
     #prediction_prices_list = [5, 8, 10]
+
+    df = get_pd_dataframe(date_time_list, price_list)
+    print(df, "************************ Here is DF ************************")
+
 
     prediction_prices_list= get_prediction()
 

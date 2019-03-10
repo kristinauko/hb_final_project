@@ -48,6 +48,16 @@ def get_python_list(predictions):
         python_list.append(rounded_value)
     return python_list
 
+def get_pd_dataframe(date_time_list, price_list):
+    """Take date_time_list and price_list for the product and create pandas DataFrame"""
+
+    indexRange = range(len(date_time_list))
+    df = pd.DataFrame(index=indexRange,columns=['Date', 'Price'])
+    for i in indexRange:
+        df['Date'][i] = date_time_list[i]
+        df['Price'][i] = price_list[i]
+
+    return df
 
 
 
