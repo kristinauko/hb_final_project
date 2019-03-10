@@ -10,6 +10,8 @@ import os
 import tensorflow as tf
 
 
+PREDICT_SAMPLE = 50
+
 #data scaling: convert dataset to values from 0 to 1
 scaler = MinMaxScaler(feature_range=(0, 1))
 
@@ -20,6 +22,8 @@ def get_prediction():
 
     #process data
     dataset_train, dataset_test = process_data()
+    dataset_train, dataset_test = transform_data(dataset_train, dataset_test)
+    x_train, y_train, x_test, y_test = get_training_testing_datasets(dataset_train, dataset_test)
 
     #scale data
     x_train, y_train, x_test, y_test  = scale_data(dataset_train, dataset_test)
@@ -68,14 +72,19 @@ def process_data():
     return dataset_train, dataset_test
 
 
-def scale_data(dataset_train, dataset_test):
-    """Scales dataset_train and dataset_test"""
+def transform_data(dataset_train, dataset_test):
+    """Scale and transform dataset_train and dataset_test"""
 
     #transform dataset using fit_transform
     dataset_train = scaler.fit_transform(dataset_train)
 
     #transform dataset using transform (does not influence teaching)
     dataset_test = scaler.transform(dataset_test)
+
+    return dataset_train, dataset_test
+
+
+def get_training_testing_datasets(dataset_train, dataset_test):
 
     x_train, y_train = create_my_dataset(dataset_train)
     x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
@@ -136,6 +145,7 @@ def create_my_dataset(df):
 
 
 def get_model_path(amazon_id):
+    """Take amazon_id and create a path where model will be saved"""
 
     path_to_model = '/home/vagrant/src/' + str(amazon_id) + '.h5'
 
