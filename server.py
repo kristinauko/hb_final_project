@@ -63,6 +63,12 @@ def create_json():
 
     min_price = min(price_list, default="Unknown for this product")
 
+    df = get_pd_dataframe(date_time_list, price_list)
+
+    prediction_prices_list= get_prediction(amazon_id, df)
+
+    prediction_dates_list = populate_future_dates(len(prediction_prices_list))
+
     #This is a hardcoded string for testing if pricing/dates plotting works
     # date_time_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
     # price_list=[5, 8, 10]
@@ -70,14 +76,6 @@ def create_json():
     #This is a hardcoded string for testing if future prices/dates plotting works
     #prediction_dates_list = ["2018-03-04", "2018-08-04", "2019-03-04"]
     #prediction_prices_list = [5, 8, 10]
-
-    df = get_pd_dataframe(date_time_list, price_list)
-    print(df, "************************ Here is DF ************************")
-
-
-    prediction_prices_list= get_prediction()
-
-    prediction_dates_list = populate_future_dates(len(prediction_prices_list))
     
     #Create a dictionary with keys 'date' and 'price'
     quotes_dictionary['date'] = date_time_list
