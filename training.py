@@ -10,7 +10,7 @@ import os
 import tensorflow as tf
 
 
-PREDICT_SAMPLE = 50
+PREDICT_WINDOW = 50
 
 #data scaling: convert dataset to values from 0 to 1
 scaler = MinMaxScaler(feature_range=(0, 1))
@@ -49,21 +49,20 @@ def get_prediction():
   
     if os.path.exists(get_model_path("phone_prediction2")):
 
-        print("STARTED THE Prediction **********************************")
+        #print("STARTED THE Prediction **********************************")
 
         #upload model
         model = load_model(get_model_path("phone_prediction2")) 
 
-        print("LOADED MODEL **********************************")
+        #print("LOADED MODEL **********************************")
 
-        df = df[len(df) - PREDICT_SAMPLE:]
+        df = df.reshape(-1,1)
 
-        print(len(df), "***********************Length of DF")
+        scaler.fit(df)
 
-        inputs = df.reshape(-1,1)
+        inputs = df[len(df) - PREDICT_WINDOW:]
+        
         print(type(inputs), len(inputs), "***********************Length of inputs")
-
-        scaler.fit(inputs)
 
         # print(len(inputs), "***********************Length of inputs after fiting and transforming")
         inputs = scaler.transform(inputs)
@@ -71,10 +70,10 @@ def get_prediction():
         print(len(inputs), "***********************Length of inputs after  transforming")
         # Slide the window forward by one, so the last predicted value now becomes the head of 
         # the new window and predict the next, slide again, and so on
-        for i in range(PREDICT_SAMPLE):
+        for i in range(PREDICT_WINDOW):
             x_predict = []
 
-            x_predict.append(inputs[i:i + PREDICT_SAMPLE,0])
+            x_predict.append(inputs[i:i + PREDICT_WINDOW,0])
             x_predict = np.array(x_predict)
             x_predict = np.reshape(x_predict, (x_predict.shape[0],x_predict.shape[1],1))
             nextPrice = model.predict(x_predict)
@@ -83,7 +82,7 @@ def get_prediction():
             print(i, "********************************* this is I ************************************")
 
         #inverse transformation we did
-        predictions = scaler.inverse_transform(inputs[PREDICT_SAMPLE:])
+        predictions = scaler.inverse_transform(inputs[PREDICT_WINDOW:])
         print(len(predictions), "******************* Length of predictions")
     
         #get predictions
@@ -189,8 +188,8 @@ def create_my_dataset(df):
 
     x = []
     y = []
-    for i in range(50, df.shape[0]):
-        x.append(df[i-50:i,0])
+    for i in range(PREDICT_WINDOW, df.shape[0]):
+        x.append(df[i-PREDICT_WINDOW:i,0])
         y.append(df[i,0])
     #convert data to numpy array
     x = np.array(x)
