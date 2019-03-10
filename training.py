@@ -20,16 +20,22 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 def get_prediction():
     """Get prediction from the given data"""
 
+    # convert values to pd DataFrame
+    df = process_data()
+
     #process data
-    dataset_train, dataset_test = process_data()
+    dataset_train, dataset_test = split_dataset(df)
+
+    #transform data
     dataset_train, dataset_test = transform_data(dataset_train, dataset_test)
-    x_train, y_train, x_test, y_test = get_training_testing_datasets(dataset_train, dataset_test)
+    x_train, y_train, x_test, y_test = reshape_datasets(dataset_train, dataset_test)
 
     #scale data
     x_train, y_train, x_test, y_test  = scale_data(dataset_train, dataset_test)
     
     #check if model for the product exists and use it, otherwise create new one
     if(not os.path.exists(get_model_path("phone_prediction2"))):
+
         model = get_model(x_train)
         model.fit(x_train, y_train, epochs=1, batch_size=32)
         model.save(get_model_path("phone_prediction2"))
@@ -61,6 +67,12 @@ def process_data():
     #keras requirement: reshape data, convert original data
     df = df.reshape(-1,1)
 
+    return df
+
+
+def split_dataset(df):
+    """Take processed data and split into two datasets"""
+
     #split dataset into train and test datasets
     #train 80 percent of rows
     dataset_train = np.array(df[:int(df.shape[0]*0.8)])
@@ -84,7 +96,8 @@ def transform_data(dataset_train, dataset_test):
     return dataset_train, dataset_test
 
 
-def get_training_testing_datasets(dataset_train, dataset_test):
+def reshape_datasets(dataset_train, dataset_test):
+    """Take training and testing datasets, reshape them"""
 
     x_train, y_train = create_my_dataset(dataset_train)
     x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
@@ -130,7 +143,7 @@ def get_model(x_train):
 
 
 def create_my_dataset(df):
-    """Create empty lists, and put dataset in them"""
+    """Create empty lists, and put values in them"""
 
     x = []
     y = []
