@@ -22,36 +22,78 @@ def get_prediction():
 
     # convert values to pd DataFrame
     df = process_data()
-
-    #process data
-    dataset_train, dataset_test = split_dataset(df)
-
-    #transform data
-    dataset_train, dataset_test = transform_data(dataset_train, dataset_test)
-    x_train, y_train, x_test, y_test = reshape_datasets(dataset_train, dataset_test)
-
-    #scale data
-    x_train, y_train, x_test, y_test  = scale_data(dataset_train, dataset_test)
     
     #check if model for the product exists and use it, otherwise create new one
     if(not os.path.exists(get_model_path("phone_prediction2"))):
 
+        #process data
+        dataset_train, dataset_test = split_reshape_dataset(df)
+
+        #transform data
+        dataset_train, dataset_test = transform_data(dataset_train, dataset_test)
+
+        #scale data
+        x_train, y_train, x_test, y_test  = reshape_datasets(dataset_train, dataset_test)
+
+        #create model
         model = get_model(x_train)
+
+        #fit data 
         model.fit(x_train, y_train, epochs=1, batch_size=32)
+
+        #save model 
         model.save(get_model_path("phone_prediction2"))
-        
-    else:
-        model = load_model(get_model_path("phone_prediction2"))
 
-    predictions = model.predict(x_test) 
-    #inverse transformation we did
-    predictions = scaler.inverse_transform(predictions)
+        #clear the session
+        Clear.clear_session()
+  
+    if os.path.exists(get_model_path("phone_prediction2")):
 
-    #convert numpy array to python list
-    python_list = get_python_list(predictions)
+        print("STARTED THE Prediction **********************************")
 
-    #clear the session after creating or loading model
-    Clear.clear_session()
+        #upload model
+        model = load_model(get_model_path("phone_prediction2")) 
+
+        print("LOADED MODEL **********************************")
+
+        df = df[len(df) - PREDICT_SAMPLE:]
+
+        print(len(df), "***********************Length of DF")
+
+        inputs = df.reshape(-1,1)
+        print(type(inputs), len(inputs), "***********************Length of inputs")
+
+        scaler.fit(inputs)
+
+        # print(len(inputs), "***********************Length of inputs after fiting and transforming")
+        inputs = scaler.transform(inputs)
+
+        print(len(inputs), "***********************Length of inputs after  transforming")
+        # Slide the window forward by one, so the last predicted value now becomes the head of 
+        # the new window and predict the next, slide again, and so on
+        for i in range(PREDICT_SAMPLE):
+            x_predict = []
+
+            x_predict.append(inputs[i:i + PREDICT_SAMPLE,0])
+            x_predict = np.array(x_predict)
+            x_predict = np.reshape(x_predict, (x_predict.shape[0],x_predict.shape[1],1))
+            nextPrice = model.predict(x_predict)
+                
+            inputs = np.append(inputs, nextPrice, axis=0)
+            print(i, "********************************* this is I ************************************")
+
+        #inverse transformation we did
+        predictions = scaler.inverse_transform(inputs[PREDICT_SAMPLE:])
+        print(len(predictions), "******************* Length of predictions")
+    
+        #get predictions
+        # predictions = get_prediction_array(df, model)
+
+        #convert numpy array to python list
+        python_list = get_python_list(predictions)
+
+        #clear the session after creating or loading model
+        Clear.clear_session()
 
     return python_list
 
@@ -64,14 +106,14 @@ def process_data():
     #take pricing data
     df = df['Close'].values
 
-    #keras requirement: reshape data, convert original data
-    df = df.reshape(-1,1)
-
     return df
 
 
-def split_dataset(df):
-    """Take processed data and split into two datasets"""
+def split_reshape_dataset(df):
+    """Take processed data, reshape it and split into two datasets"""
+
+    #keras requirement: reshape data, convert original data
+    df = df.reshape(-1,1)
 
     #split dataset into train and test datasets
     #train 80 percent of rows
@@ -155,6 +197,40 @@ def create_my_dataset(df):
     y = np.array(y)
     
     return x,y
+
+
+# def get_prediction_array(df, model):
+#     """Take data, get 50 last values reshape ir and pass it to the model to get predicted values"""
+
+#     df = df[len(df) - PREDICT_SAMPLE:]
+
+#     print(len(df), "***********************Length of DF")
+
+#     inputs = df[:PREDICT_SAMPLE].reshape(-1,1)
+#     print(type(inputs), len(inputs), "***********************Length of inputs")
+#     inputs = scaler.fit_transform(inputs)
+#     print(len(inputs), "***********************Length of inputs after fiting and transforming")
+#     inputs = scaler.transform(inputs)
+
+#     print(len(inputs), "***********************Length of inputs after  transforming")
+#     # Slide the window forward by one, so the last predicted value now becomes the head of 
+#     # the new window and predict the next, slide again, and so on
+#     for i in range(PREDICT_SAMPLE):
+#         x_predict = []
+
+#         x_predict.append(inputs[i:i + PREDICT_SAMPLE,0])
+#         x_predict = np.array(x_predict)
+#         x_predict = np.reshape(x_predict, (x_predict.shape[0],x_predict.shape[1],1))
+#         nextPrice = model.predict(x_predict)
+            
+#         predictions_array = np.append(inputs, nextPrice, axis=0)
+#         print(i, "********************************* this is I ************************************")
+
+#     #inverse transformation we did
+#     predictions = scaler.inverse_transform(predictions_array)
+#     print(len(predictions), "******************* Length of predictions")
+
+#     return predictions
 
 
 def get_model_path(amazon_id):
