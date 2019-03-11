@@ -49,13 +49,28 @@ def get_python_list(predictions):
     return python_list
 
 def get_pd_dataframe(date_time_list, price_list):
-    """Take date_time_list and price_list for the product and create pandas DataFrame"""
+    """Take two list of strings and create pandas DataFrame"""
 
-    indexRange = range(len(date_time_list))
-    df = pd.DataFrame(index=indexRange,columns=['Date', 'Price'])
-    for i in indexRange:
+    index_range = range(len(date_time_list))
+
+    df = pd.DataFrame(index=index_range,columns=['Date', 'Price'])
+
+    for i in index_range:
         df['Date'][i] = date_time_list[i]
         df['Price'][i] = price_list[i]
+
+    return df
+
+def create_pd_dataframe(normalized_series):
+    """Take normalized series and create pandas Dataframe"""
+
+    index_range = range(len(normalized_series))
+
+    df = pd.DataFrame(index=index_range,columns=['Date', 'Price'])
+
+    for i in index_range:
+        df['Date'][i] = normalized_series[i][0]
+        df['Price'][i] = normalized_series[i][1]
 
     return df
 

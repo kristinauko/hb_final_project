@@ -4,13 +4,10 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential, load_model
 from keras.layers import LSTM, Dense, Dropout
 from keras import backend as Clear
-from data_helper import get_python_list
+from data_helper import get_python_list, create_pd_dataframe
 
 import os
 import tensorflow as tf
-
-
-PREDICT_WINDOW = 50
 
 #data scaling: convert dataset to values from 0 to 1
 scaler = MinMaxScaler(feature_range=(0, 1))
@@ -21,19 +18,19 @@ def get_prediction(amazon_id, df):
     """Get prediction from the given data"""
 
     # convert values to pd DataFrame
-    df = process_data(df)
-    
+    df, predict_window = process_data(df)
+
     #check if model for the product exists and use it, otherwise create new one
     if(not os.path.exists(get_model_path(amazon_id))):
 
         #process data
-        dataset_train, dataset_test = split_dataset(df)
+        dataset_train, dataset_test = split_dataset(df, predict_window)
 
         #transform data
         dataset_train, dataset_test = transform_data(dataset_train, dataset_test)
 
         #scale data
-        x_train, y_train, x_test, y_test  = reshape_datasets(dataset_train, dataset_test)
+        x_train, y_train, x_test, y_test  = reshape_datasets(dataset_train, dataset_test, predict_window)
 
         #create model
         model = get_model(x_train)
@@ -56,28 +53,25 @@ def get_prediction(amazon_id, df):
         scaler.fit(df)
 
         #get inputs for prediction
-        inputs = df[len(df) - PREDICT_WINDOW:]
+        inputs = df[len(df) - predict_window:]
 
         #transform inputs
         inputs = scaler.transform(inputs)
 
         # Slide the window forward by one, so the last predicted value now becomes the head of 
         # the new window and predict the next, slide again, and so on
-        for i in range(PREDICT_WINDOW):
+        for i in range(predict_window):
             x_predict = []
 
-            x_predict.append(inputs[i:i + PREDICT_WINDOW,0])
+            x_predict.append(inputs[i:i + predict_window,0])
             x_predict = np.array(x_predict)
-            x_predict = np.reshape(x_predict, (x_predict.shape[0],x_predict.shape[1],1))
+            x_predict = np.reshape(x_predict, (x_predict.shape[0], x_predict.shape[1],1))
             nextPrice = model.predict(x_predict)
                 
             inputs = np.append(inputs, nextPrice, axis=0)
 
         #inverse transformation we did
-        predictions = scaler.inverse_transform(inputs[PREDICT_WINDOW:])
-    
-        #get predictions
-        # predictions = get_prediction_array(df, model)
+        predictions = scaler.inverse_transform(inputs[predict_window:])
 
         #convert numpy array to python list
         python_list = get_python_list(predictions)
@@ -90,16 +84,24 @@ def get_prediction(amazon_id, df):
 def process_data(df):
     """ Preprocess given data"""
 
+    #add missing data points for the model: week based prediction
+    df = normalize_data(df)
+
+    predict_window = len(df) // 10 * 3
+
+    #convert list of normalized data to pandas DataFrame
+    df = create_pd_dataframe(df)
+
     #take pricing data
     df = df['Price'].values
 
     #keras requirement: reshape data, convert original data
     df = df.reshape(-1,1)
 
-    return df
+    return df, predict_window
 
 
-def split_dataset(df):
+def split_dataset(df, predict_window):
     """Take processed data, split into two datasets - training and testing"""
 
     #split dataset into train and test datasets
@@ -108,7 +110,7 @@ def split_dataset(df):
 
     #test dataset is 20 percent of rows
     #50 - that's where historical data and prediction overlap
-    dataset_test = np.array(df[int(df.shape[0]*0.8)- 50:])
+    dataset_test = np.array(df[int(df.shape[0]*0.8)- predict_window:])
 
     return dataset_train, dataset_test
 
@@ -125,13 +127,13 @@ def transform_data(dataset_train, dataset_test):
     return dataset_train, dataset_test
 
 
-def reshape_datasets(dataset_train, dataset_test):
+def reshape_datasets(dataset_train, dataset_test, predict_window):
     """Take training and testing datasets, reshape them"""
 
-    x_train, y_train = create_my_dataset(dataset_train)
+    x_train, y_train = create_my_dataset(dataset_train, predict_window)
     x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
 
-    x_test, y_test = create_my_dataset(dataset_test)
+    x_test, y_test = create_my_dataset(dataset_test, predict_window)
     x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
 
     return x_train, y_train, x_test, y_test 
@@ -171,13 +173,13 @@ def get_model(x_train):
     return model
 
 
-def create_my_dataset(df):
+def create_my_dataset(df, predict_window):
     """Create empty lists, and put values in them"""
 
     x = []
     y = []
-    for i in range(PREDICT_WINDOW, df.shape[0]):
-        x.append(df[i-PREDICT_WINDOW:i,0])
+    for i in range(predict_window, df.shape[0]):
+        x.append(df[i-predict_window:i,0])
         y.append(df[i,0])
     #convert data to numpy array
     x = np.array(x)
@@ -193,6 +195,43 @@ def get_model_path(amazon_id):
 
     return path_to_model
 
+
+def normalize_data(df):
+    """Take original dataset and create price averages for weeks"""
+
+    original_index = 0
+    normalized_series = []
+    nex_index = 0
+
+    #loop through pandas dates, starting with the earliest date and divide time into periods (weeks), get average of prices
+    for period_end in pd.date_range(start=df.min().Date, end=df.max().Date, freq='W', normalize=True):
+        price_sum = 0
+        num_prices = 0
+        last_price = 0
+        
+        #while loop: continue while index is less then lenght of df, drop the time and compare date to the end of the period
+        while original_index < len(df) and pd.to_datetime(df.loc[original_index].Date).normalize() <= period_end:
+            
+            last_price = df.loc[original_index]["Price"]
+            price_sum += last_price
+            num_prices +=1
+            original_index +=1
+
+        #if sum of prices for the week is zero, use last week price as an average
+        if price_sum == 0:
+            average_price_point = (period_end, normalized_series[-1][2],normalized_series[-1][2])
+           
+        #otherwise average price point is the average of all period prices
+        else:
+            average_price_point = (period_end, price_sum / num_prices, last_price)
+
+        #append average price point to normalized series
+        normalized_series.append(average_price_point)
+        original_index += 1
+        
+    print("Normalized to {0} {1} intervals".format(len(normalized_series), "W"))
+
+    return normalized_series
 
 
 

@@ -80,7 +80,7 @@ def create_json():
     #Create a dictionary with keys 'date' and 'price'
     quotes_dictionary['date'] = date_time_list
     quotes_dictionary['price'] = price_list
-    quotes_dictionary['prediction_dates'] = prediction_dates_list[1:]
+    quotes_dictionary['prediction_dates'] = prediction_dates_list[:]
     quotes_dictionary['prediction_prices'] = prediction_prices_list
     quotes_dictionary['min_price'] = min_price
 
