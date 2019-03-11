@@ -36,7 +36,7 @@ def get_prediction(amazon_id, df):
         model = get_model(x_train)
 
         #fit data 
-        model.fit(x_train, y_train, epochs=3, batch_size=1)
+        model.fit(x_train, y_train, epochs=500, batch_size=512)
 
         #save model 
         model.save(get_model_path(amazon_id))
@@ -151,6 +151,7 @@ def get_model(x_train):
 
     model.add(LSTM(units=50))
 
+    #experimental model features
     # #to avoid overfitting
     # model.add(Dropout(0.2))
 

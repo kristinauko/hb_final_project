@@ -57,6 +57,9 @@ def get_pd_dataframe(date_time_list, price_list):
     for i in index_range:
         df['Date'][i] = date_time_list[i]
         df['Price'][i] = price_list[i]
+    
+    df.dropna(inplace=True)
+    df.reset_index(drop=True, inplace=True)
 
     return df
 

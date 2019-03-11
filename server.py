@@ -38,11 +38,19 @@ def get_prices():
 
     amazon_id = get_amazon_id(amazon_url) #extract amazon item unique id from Amazon url
 
-    product_payload = get_product_data(amazon_id)  #query Keepa API
-    product = product_payload[0] #extracts product from product payload 
-    name = product['title']
+    if Product.query.filter(Product.amazon_id==amazon_id).first():
+        name = Product.query.filter(Product.amazon_id==amazon_id).first().name
 
-    load_products(product) 
+        print("****************** product found in database ******************")
+
+    else:
+        product_payload = get_product_data(amazon_id)  #query Keepa API
+        product = product_payload[0] #extracts product from product payload 
+        name = product['title']
+
+        print("****************** product found in database ******************")
+
+        load_products(product) 
     
     return render_template("get-prices.html", name=name, amazon_id=amazon_id)
 
@@ -56,7 +64,7 @@ def create_json():
     #Get product quotes list: join Product and Quote tables, get entries with specific amazon_id from Products table
     product_quotes_list = Quote.query.join(Product, Quote.product_id==Product.product_id).filter(Product.amazon_id==amazon_id).all()
 
-    print(product_quotes_list)
+    #print(product_quotes_list)
 
     quotes_dictionary = {}
 
