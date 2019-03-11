@@ -4,7 +4,7 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential, load_model
 from keras.layers import LSTM, Dense, Dropout
 from keras import backend as Clear
-from data_helper import get_python_list, create_pd_dataframe
+from data_helper import get_python_list
 
 import os
 import tensorflow as tf
@@ -36,7 +36,7 @@ def get_prediction(amazon_id, df):
         model = get_model(x_train)
 
         #fit data 
-        model.fit(x_train, y_train, epochs=1, batch_size=32)
+        model.fit(x_train, y_train, epochs=3, batch_size=1)
 
         #save model 
         model.save(get_model_path(amazon_id))
@@ -84,13 +84,10 @@ def get_prediction(amazon_id, df):
 def process_data(df):
     """ Preprocess given data"""
 
-    #add missing data points for the model: week based prediction
-    df = normalize_data(df)
-
     predict_window = len(df) // 10 * 3
 
     #convert list of normalized data to pandas DataFrame
-    df = create_pd_dataframe(df)
+    # df = create_pd_dataframe(df)
 
     #take pricing data
     df = df['Price'].values
@@ -149,21 +146,24 @@ def get_model(x_train):
 
     #LSTM layers: add layers for the model
     #50 days, 1
-    model.add(LSTM(units=96, return_sequences=True, input_shape=(x_train.shape[1],1)))
+    #model.add(LSTM(units=96, return_sequences=True, input_shape=(x_train.shape[1],1)))
+    model.add(LSTM(units=50, return_sequences=True, input_shape=(x_train.shape[1],1)))
 
-    #to avoid overfitting
-    model.add(Dropout(0.2))
+    model.add(LSTM(units=50))
 
-    #to avoid overfitting
-    #input shape needs to be defind in first layer
-    model.add(LSTM(units=96, return_sequences=True)) 
+    # #to avoid overfitting
+    # model.add(Dropout(0.2))
 
-    #to avoid overfitting
-    model.add(Dropout(0.2))
+    # #to avoid overfitting
+    # #input shape needs to be defind in first layer
+    # model.add(LSTM(units=96, return_sequences=True)) 
 
-    model.add(LSTM(units=96))
+    # #to avoid overfitting
+    # model.add(Dropout(0.2))
 
-    model.add(Dropout(0.2))
+    # model.add(LSTM(units=96))
+
+    # model.add(Dropout(0.2))
 
     #After fifty days of training what is the opening price for the first day
     model.add(Dense(units=1))
@@ -195,43 +195,6 @@ def get_model_path(amazon_id):
 
     return path_to_model
 
-
-def normalize_data(df):
-    """Take original dataset and create price averages for weeks"""
-
-    original_index = 0
-    normalized_series = []
-    nex_index = 0
-
-    #loop through pandas dates, starting with the earliest date and divide time into periods (weeks), get average of prices
-    for period_end in pd.date_range(start=df.min().Date, end=df.max().Date, freq='W', normalize=True):
-        price_sum = 0
-        num_prices = 0
-        last_price = 0
-        
-        #while loop: continue while index is less then lenght of df, drop the time and compare date to the end of the period
-        while original_index < len(df) and pd.to_datetime(df.loc[original_index].Date).normalize() <= period_end:
-            
-            last_price = df.loc[original_index]["Price"]
-            price_sum += last_price
-            num_prices +=1
-            original_index +=1
-
-        #if sum of prices for the week is zero, use last week price as an average
-        if price_sum == 0:
-            average_price_point = (period_end, normalized_series[-1][2],normalized_series[-1][2])
-           
-        #otherwise average price point is the average of all period prices
-        else:
-            average_price_point = (period_end, price_sum / num_prices, last_price)
-
-        #append average price point to normalized series
-        normalized_series.append(average_price_point)
-        original_index += 1
-        
-    print("Normalized to {0} {1} intervals".format(len(normalized_series), "W"))
-
-    return normalized_series
 
 
 

@@ -12,7 +12,7 @@ import math
 from model import Product, Quote, connect_to_db, db
 from database_helper import load_products, load_quotes, update_quotes
 from query_helper import get_amazon_id, get_product_data
-from data_helper import clean_data, populate_future_dates, get_pd_dataframe
+from data_helper import clean_data, populate_future_dates, get_pd_dataframe, normalize_data
 from training import get_prediction
 
 app = Flask(__name__)
@@ -65,6 +65,9 @@ def create_json():
 
     df = get_pd_dataframe(date_time_list, price_list)
 
+    #add missing data points for the model: week based prediction
+    df = normalize_data(df)
+
     prediction_prices_list= get_prediction(amazon_id, df)
 
     prediction_dates_list = populate_future_dates(len(prediction_prices_list))
@@ -78,9 +81,9 @@ def create_json():
     #prediction_prices_list = [5, 8, 10]
     
     #Create a dictionary with keys 'date' and 'price'
-    quotes_dictionary['date'] = date_time_list
-    quotes_dictionary['price'] = price_list
-    quotes_dictionary['prediction_dates'] = prediction_dates_list[:]
+    quotes_dictionary['date'] = df['Date'].tolist()
+    quotes_dictionary['price'] = df['Price'].tolist()
+    quotes_dictionary['prediction_dates'] = prediction_dates_list[1:]
     quotes_dictionary['prediction_prices'] = prediction_prices_list
     quotes_dictionary['min_price'] = min_price
 
