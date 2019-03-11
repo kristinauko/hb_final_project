@@ -98,7 +98,7 @@ def normalize_data(df):
         normalized_series.append(average_price_point)
         original_index += 1
         
-    print("Normalized to {0} {1} intervals".format(len(normalized_series), "W"))
+    #print("Normalized to {0} {1} intervals".format(len(normalized_series), "W"))
 
     index_range = range(len(normalized_series))
 
