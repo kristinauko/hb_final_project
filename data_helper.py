@@ -88,7 +88,8 @@ def normalize_data(df):
            
         #otherwise average price point is the average of all period prices
         else:
-            average_price_point = (period_end, price_sum / num_prices, last_price)
+            average_price_point = (period_end, round((price_sum / num_prices), 2), last_price)
+            #average_price_point = (period_end, last_price, last_price)
 
         #append average price point to normalized series
         normalized_series.append(average_price_point)

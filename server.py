@@ -37,6 +37,7 @@ def get_prices():
     amazon_url = request.args.get("amazon-url") #get input which is Amazon url
 
     amazon_id = get_amazon_id(amazon_url) #extract amazon item unique id from Amazon url
+
     product_payload = get_product_data(amazon_id)  #query Keepa API
     product = product_payload[0] #extracts product from product payload 
     name = product['title']
