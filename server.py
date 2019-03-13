@@ -48,7 +48,7 @@ def get_prices():
         product = product_payload[0] #extracts product from product payload 
         name = product['title']
 
-        print("****************** product found in database ******************")
+        print("****************** product in database ******************")
 
         load_products(product) 
     

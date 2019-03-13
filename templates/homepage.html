@@ -2,15 +2,55 @@
 <html>
     <head>
         <title>Search</title>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <link href="/static/project.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Abel" rel="stylesheet">
     </head>
-    <body>
-        <h1 id="h1">Historical Amazon prices</h1>
-        <p>
+    <body class=background>
+        <nav class="navbar bg-light">
+          <a class="navbar-brand" href="/">
+            <h1 id="h1">ChrystAl</h1>
+          </a>
+        </nav>
+    <div class="picture_container">
+        <section class="home_banner_area overlay">
+                <div class="row fullscreen d-flex align-items-center justify-content-center">
+                    <div class="banner_content">
+                        <div class="row d-flex justify-content-center align-items-center">
+                            <h2 class="shorter_description">
+                                Ready, bargain hunters?
+                            </h2>
+                        </div>
+                        <div class="longer_description">
+                        <div class="row d-flex justify-content-center align-items-center">
+                            Check out Amazon price history and discover what lies ahead.
+                        </div>
+                    </div>
+                </div>
+        </section>
+
+        <div class="input_container">
             <form action="/get-prices">
-                Search:
-                <input type="text" name="amazon-url" placeholder="Amazon URL" size=50 required>
-                <input type="submit">
+                <div class="input-group flex-nowrap justify-content-center align-items-center">
+                    <div class="input-group-prepend">
+                        <input type="text" name="amazon-url" placeholder="Paste full product URL here" size=75 aria-describedby="addon-wrapping" required>
+                        <input type="submit" value="  Go !  " >
+<!--                     <progress id="bar" min="1" max="5" value="0" />
+                    <script>
+                    $('#bar').attr('value', '5');
+                </script> -->
+                    </div>
+
+                </div>
             </form>
-        <p>
+        </div>
+    </div>
     </body>
 </html>
+
+
+
+

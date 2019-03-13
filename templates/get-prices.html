@@ -1,70 +1,85 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Price data</title>
-          <script
-          src="https://code.jquery.com/jquery-3.3.1.min.js"
-          integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-          crossorigin="anonymous"></script>
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+      <title>Price data</title>
+      <script
+        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+      <link href="/static/project.css" rel="stylesheet">
+      <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+      <link href="https://fonts.googleapis.com/css?family=Abel" rel="stylesheet">
     </head>
     <body>
-        <h1>{{ name }}</h1>
-            <div class='product-div'>
-                <h3 id=amazon_id >{{ amazon_id }}</h3>
+      <nav class="navbar bg-light">
+        <a class="navbar-brand" href="/">
+          <h1 id="h1">ChrystAl </h1>
+        </a>
+      </nav>
+        <h3 class="product_title">{{ name }}</h3>
 
-                <div id='priceDate' style='width:800px;height:400px;''>
+      <div id="status"></div>
+      <div class='product-div'>
+        <p id=amazon_id >{{ amazon_id }}</p>
+        <h6 id="min_price"></h6>
+          <div class="chart_box" id='priceDate'>
+            <script>
+              let amazon_id = $('#amazon_id').html();
 
-                <script>
-                    let amazon_id = $('#amazon_id').html();
+              $('#status').html('<i>Loading...</i>');
 
-                    $.get('/get-prices.json', {amazon_id: amazon_id}, (results) => {
-                        console.log(results);
-                        console.log(results.date);
-                        console.log(results.price);
-                        console.log(results.prediction_prices)
+              $.get('/get-prices.json', {amazon_id: amazon_id}, (results) => {
+                  console.log(results);
+                  console.log(results.date);
+                  console.log(results.price);
+                  console.log(results.prediction_prices)
 
-                        let date_time_list = results.date;
-                        let price_list = results.price;
-                        let predicted_date_time_list = results.prediction_dates;
-                        let predicted_price_list = results.prediction_prices;
+                  let date_time_list = results.date;
+                  let price_list = results.price;
+                  let predicted_date_time_list = results.prediction_dates;
+                  let predicted_price_list = results.prediction_prices;
 
-                        let plot = { 
-                          x: date_time_list,
-                          y: price_list,
-                          mode: 'lines+markers',
-                          type: 'scatter',
-                          name: 'Pricing history',
-                          line: {shape: 'spline'}
-                        };
+                  let plot = { 
+                    x: date_time_list,
+                    y: price_list,
+                    mode: 'lines+markers',
+                    type: 'scatter',
+                    name: 'Price history',
+                    line: {shape: 'spline'}
+                  };
 
-                        let prediction_plot = { 
-                          x: predicted_date_time_list,
-                          y: predicted_price_list,
-                          mode: 'lines+markers',
-                          type: 'scatter',
-                          name: 'Pricing prediction',
-                          line: {shape: 'spline'}
-                        };
+                  let prediction_plot = { 
+                    x: predicted_date_time_list,
+                    y: predicted_price_list,
+                    mode: 'lines+markers',
+                    type: 'scatter',
+                    name: 'Predicted trend',
+                    line: {shape: 'spline'}
+                  };
 
-                        let layout = {
-                        yaxis: {title: "Price in $"},       
-                        xaxis: {showgrid: false, 
-                        },
-                        };
+                  let layout = {
+                  font: {
+                    family: 'Abel, sans-serif',
+                    color: '#7f7f7f'
+                  },
+                  yaxis: {title: "Weekly average price in $"},       
+                  xaxis: {showgrid: false,}
+                  };
 
-                        let data = [plot, prediction_plot];
 
-                        Plotly.newPlot('priceDate', data, layout);
+                  let data = [plot, prediction_plot];
 
-                        $('#min_price').text('Lowest Price: ' + results.min_price);
+                  Plotly.newPlot('priceDate', data, layout, { responsive: true });
 
-                    });
+                  $('#min_price').text('Lowest past price: $' + results.min_price);
 
-                </script>
-
-                </div>
-                <h3 id="min_price"></h3>
-            </div>
+                  $('#status').empty();
+              });
+              </script>
+          </div>
+          </div>
     </body>
 </html>
