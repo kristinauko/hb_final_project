@@ -20,8 +20,11 @@
         </a>
       </nav>
         <h3 class="product_title">{{ name }}</h3>
-
-      <div id="status"></div>
+      <div class="col-xs-12 col-sm-12 progress-container">
+          <div class="progress progress-striped active">
+              <div class="progress-bar progress-bar-success" style="width:0%"></div>
+          </div>
+      </div>
       <div class='product-div'>
         <p id=amazon_id >{{ amazon_id }}</p>
         <h6 id="min_price"></h6>
@@ -29,7 +32,9 @@
             <script>
               let amazon_id = $('#amazon_id').html();
 
-              $('#status').html('<i>Loading...</i>');
+              $(".progress-bar").animate({
+                  width: "100%"
+              }, 32500);
 
               $.get('/get-prices.json', {amazon_id: amazon_id}, (results) => {
                   console.log(results);
@@ -76,7 +81,7 @@
 
                   $('#min_price').text('Lowest past price: $' + results.min_price);
 
-                  $('#status').empty();
+                  $('.progress-bar').empty();
               });
               </script>
           </div>
