@@ -41,14 +41,10 @@ def get_prices():
     if Product.query.filter(Product.amazon_id==amazon_id).first():
         name = Product.query.filter(Product.amazon_id==amazon_id).first().name
 
-        print("****************** product found in database ******************")
-
     else:
         product_payload = get_product_data(amazon_id)  #query Keepa API
         product = product_payload[0] #extracts product from product payload 
         name = product['title']
-
-        print("****************** product in database ******************")
 
         load_products(product) 
     

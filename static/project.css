@@ -75,6 +75,8 @@ h3.product_title {
 
 }
 
+/*progress bar style*/
+
 .progress {
   height: 3px;
 }
@@ -90,3 +92,14 @@ h3.product_title {
     -webkit-transition: none !important;
     transition: none !important;
 }
+
+/*tooltip style*/
+.tooltip-button {
+  margin-left: 90%;
+  margin-right: auto;
+}
+
+.modebar{
+      display: none !important;
+}
+

@@ -50,6 +50,9 @@
                   let plot = { 
                     x: date_time_list,
                     y: price_list,
+                    marker: {
+                      color: '#007bff',
+                      size: 6,},
                     mode: 'lines+markers',
                     type: 'scatter',
                     name: 'Price history',
@@ -69,6 +72,7 @@
                   let layout = {
                   font: {
                     family: 'Abel, sans-serif',
+                    size: 12,
                     color: '#7f7f7f'
                   },
                   yaxis: {title: "Weekly average price in $"},       
@@ -83,9 +87,22 @@
                   $('#min_price').text('Lowest past price: $' + results.min_price);
 
                   $('.progress-container').remove();
+
+                  $(function () {
+                    $('[data-toggle="tooltip"]').tooltip()
+                  })
               });
-              </script>
+            </script>
+
+            </div>
+
+            </div>
           </div>
-          </div>
+
     </body>
+    <div class="tooltip-button">
+      <button type="button" class="btn btn-primary" data-toggle="tooltip" data-placement="left" data-delay="-1" title="Weekly price average for this product is marked in blue and weekly prediction for the future is marked in orange">
+      ?
+      </button>
+    </div>
 </html>
