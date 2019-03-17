@@ -2,7 +2,6 @@
 a.navbar-brand {
   background-color: #f5f5f5;
   font-family: 'Abel', sans-serif;
-  
 }
 
 h1.h1 {
@@ -16,9 +15,7 @@ div.longer_description{
     margin-bottom: 16px;
     color: #007bff;
     font-family: 'Abel', sans-serif;
-
 }
-
 
 h2.shorter_description {
     margin: 0 auto; 
@@ -29,21 +26,17 @@ h2.shorter_description {
     margin-bottom: 32px;
     margin-top: 240px;
     font-family: 'Abel', sans-serif;
-
 }
-
 
 div.input_container {
     margin-bottom: 120px;
     font-family: 'Abel', sans-serif;
 }
 
-
 body {
   background: url(what-the-hex.png);
   margin-bottom: 60px;
 }
-
 
 #priceDate {
   width:70%;
@@ -59,7 +52,6 @@ h3.product_title {
   margin-right: auto;
   font-family: 'Abel', sans-serif;
   margin-top: 60px;
-
 }
 
 #amazon_id {
@@ -72,11 +64,9 @@ h3.product_title {
   margin-left: auto;
   margin-right: auto;
   font-family: 'Abel', sans-serif;
-
 }
 
 /*progress bar style*/
-
 .progress {
   height: 3px;
 }
@@ -95,11 +85,13 @@ h3.product_title {
 
 /*tooltip style*/
 .tooltip-button {
+
   margin-left: 90%;
   margin-right: auto;
+  border-radius: 100%;
+  visibility: hidden;
 }
 
 .modebar{
       display: none !important;
 }
-
